@@ -44,3 +44,22 @@ filesystem/display permissions are available.
 **Changes:** Host pytest 16 passed. Installed user launcher + desktop + icon. Reviewing apply path: argv is `omarchy theme bg set`, no shell, no sudo.
 **Files:** `~/.local/bin/backdrop`, `~/.local/share/applications/io.github.tuxclaw.Backdrop.desktop`
 **Commit:** pending
+
+## [2026-09-05] Fix collapsed All-wallpapers grid — Tails
+**Agent:** Tails (sole builder; no delegation)
+**Branch:** `andy/picker`
+**Changes:** Give each grid card an explicit 240×135 minimum size before its
+thumbnail loads, plus 135px CSS minimum heights on cards and gallery children.
+Retain AspectFrame 16:9 cover cropping and GridView's 2–6 column limits. Picture
+can still shrink within the reserved tile without collapsing its outer minimum.
+Preview, decoding, scanning, apply, and Omarchy integration are unchanged.
+**Files:** `src/backdrop/app.py`, `src/backdrop/style.css`, `.context/history.md`.
+**Validation:** `.venv/bin/python -m pytest`: 16 passed, one existing GI
+deprecation warning. `git diff --check` passed. Live GUI appearance remains
+unverified; Sonic should check the gallery after reinstalling.
+**Install:** Skipped as requested: ~/.local is outside the sandbox writable roots.
+Sonic will reinstall with `python scripts/install.py`.
+**Wallpaper:** No live wallpaper change.
+**Commit:** Not attempted because the active filesystem policy explicitly makes
+this repository's `.git` read-only. Patch is ready on `andy/picker`; pre-existing
+changes to `.context/notes.md` and `.context/.active-agent` were left untouched.

@@ -16,6 +16,10 @@
 - Skip huge/non-desktop types as apply targets: `.tif`, `.svg` (thumbnail ok if cheap, do not set SVG/TIF as wallpaper).
 - Current wallpaper: `/home/tux/.local/state/omarchy/current/theme/backgrounds/base.png` (label Base).
 
+## [2026-09-05] Black All-wallpapers grid
+**By:** Sonic
+Live window 10:29 PDT: 822 items, **preview works** (Debian.png 3840×2160 visible). Grid is empty black with a thin cyan selected bar and a scrollbar. Cause: Gtk.GridView cards collapse to ~0 height. Overlay only set `width_request=180`; no height. AspectFrame cannot compute 16:9 without a width allocation. Inspector preview has `width_request=280` so it paints. Not a decode bug. Fix: explicit 16:9 size_request on each card (e.g. 180×101 or larger), do not let Picture `can_shrink` collapse the tile. Reinstall `scripts/install.py` after the patch — live app is `~/.local/share/backdrop`.
+
 ## [2026-09-05] Build and validation — Tails
 
 - Runtime uses stdlib + system GI only. No pip install or network requests were made.

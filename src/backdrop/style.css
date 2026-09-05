@@ -6,8 +6,8 @@ headerbar { background: #1b1b26; }
 .eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: @accent_color; }
 .collection-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
 .gallery { background: transparent; padding: 8px 18px 20px; }
-.gallery child { padding: 6px; border-radius: 17px; background: transparent; }
-.wallpaper-card { border-radius: 12px; background: #252532; box-shadow: 0 3px 8px alpha(black,.2); transition: transform 160ms ease, box-shadow 160ms ease; }
+.gallery child { min-height: 135px; padding: 6px; border-radius: 17px; background: transparent; }
+.wallpaper-card { min-height: 135px; border-radius: 12px; background: #252532; box-shadow: 0 3px 8px alpha(black,.2); transition: transform 160ms ease, box-shadow 160ms ease; }
 .gallery child:hover .wallpaper-card { transform: translateY(-3px); box-shadow: 0 8px 16px alpha(black,.45); }
 .gallery child:selected { outline: 2px solid @accent_color; outline-offset: -4px; }
 .caption { padding: 24px 12px 10px; background: linear-gradient(transparent, alpha(black,.85)); color: white; opacity: 0; transition: opacity 160ms ease; }

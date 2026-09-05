@@ -204,7 +204,9 @@ class Window(Adw.ApplicationWindow):
     def setup_card(self, factory: Gtk.SignalListItemFactory, item: Gtk.ListItem) -> None:
         picture = Gtk.Picture(content_fit=Gtk.ContentFit.COVER, can_shrink=True)
         frame = Gtk.AspectFrame(ratio=16 / 9, obey_child=False, child=picture)
-        overlay = Gtk.Overlay(child=frame, width_request=180)
+        # Reserve a full tile before a paintable arrives; shrinkable pictures
+        # have no intrinsic minimum height for GridView to measure.
+        overlay = Gtk.Overlay(child=frame, width_request=240, height_request=135)
         overlay.set_overflow(Gtk.Overflow.HIDDEN)
         overlay.add_css_class('wallpaper-card')
         caption = vertical(2)
