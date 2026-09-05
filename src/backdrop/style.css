@@ -1,0 +1,19 @@
+window.backdrop { background: #15151e; color: #f5f3fa; }
+headerbar { background: #1b1b26; }
+.sources { background: #1b1b26; padding: 18px 10px; }
+.sources row { border-radius: 10px; padding: 12px; margin-bottom: 5px; }
+.sources row:selected { background: alpha(@accent_bg_color, .13); color: @accent_color; }
+.eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: @accent_color; }
+.collection-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.gallery { background: transparent; padding: 8px 18px 20px; }
+.gallery child { padding: 6px; border-radius: 17px; background: transparent; }
+.wallpaper-card { border-radius: 12px; background: #252532; box-shadow: 0 3px 8px alpha(black,.2); transition: transform 160ms ease, box-shadow 160ms ease; }
+.gallery child:hover .wallpaper-card { transform: translateY(-3px); box-shadow: 0 8px 16px alpha(black,.45); }
+.gallery child:selected { outline: 2px solid @accent_color; outline-offset: -4px; }
+.caption { padding: 24px 12px 10px; background: linear-gradient(transparent, alpha(black,.85)); color: white; opacity: 0; transition: opacity 160ms ease; }
+.gallery child:hover .caption, .gallery child:selected .caption, .gallery child:focus-within .caption { opacity: 1; }
+.badge { background: alpha(black,.7); color: white; border-radius: 20px; padding: 5px 9px; margin: 9px; font-size: 10px; font-weight: 700; }
+.inspector { background: #1c1c28; padding: 18px 26px; border-top: 1px solid alpha(white,.07); }
+.preview { border-radius: 12px; background: #111119; }
+.apply { padding: 10px 28px; font-weight: 700; }
+.hint { font-size: 11px; opacity: .5; }

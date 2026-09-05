@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Backdrop
+Comment=Find your next wallpaper
+Exec=backdrop
+Icon=io.github.tuxclaw.Backdrop
+Terminal=false
+Categories=Graphics;GTK;
+Keywords=wallpaper;background;pictures;omarchy;
+StartupNotify=true
+StartupWMClass=io.github.tuxclaw.Backdrop
