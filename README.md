@@ -1,79 +1,126 @@
 # Backdrop
 
-A dark, focused wallpaper gallery for Omarchy. Browse Pictures, search by filename,
-preview your selection, and give your desktop a fresh view.
+A dark, focused **Pictures picker** for [Omarchy](https://omarchy.org/). Browse `~/Pictures`, search by filename, preview full-size, and apply a wallpaper without fighting Omarchy’s theme system.
 
-Backdrop is the **Pictures picker**. **Super+Ctrl+Space still works** as Omarchy's
-stock theme gallery. “Save to theme” is on by default: applying keeps a copy in
-`~/.config/omarchy/backgrounds/<current-theme>/`, making it available there too.
-Turn the switch off to apply the original without keeping a copy.
-
-## Launch and install
-
-Requires Python 3.11+, PyGObject, GTK 4.12+ and libadwaita 1.4+ (available on this
-Omarchy installation). No runtime pip packages, network access, or wallpaper daemon.
-
-From this project:
+Backdrop does **not** draw the desktop background. It only calls:
 
 ```sh
-python -m backdrop
+omarchy theme bg set /absolute/path/to/image
 ```
 
-Install a standalone user copy, launcher, desktop entry, and icon:
+That is the same path Super+Ctrl+Space uses. Omarchy still owns rendering, transitions, and the live background plugin.
+
+**Save to theme** is on by default. Apply copies the file into `~/.config/omarchy/backgrounds/<current-theme>/` with a collision-safe name, then sets that copy. Super+Ctrl+Space will see it on the next open. Turn the switch off to apply the original file in place.
+
+The window is GTK 4 / libadwaita: sidebar collections, 16:9 thumbnail grid, large preview, Apply.
+
+## Why it exists
+
+Omarchy already has a background switcher (`omarchy theme bg-switcher`, bound to **Super+Ctrl+Space**). It only shows:
+
+- `~/.local/state/omarchy/current/theme/backgrounds`
+- `~/.config/omarchy/backgrounds/<theme-slug>/`
+
+It is not a file picker for `~/Pictures`. Backdrop fills that gap. It does not replace Aether (theme-from-wallpaper) and does not edit anything under `/usr/share/omarchy/`.
+
+## Requirements
+
+- Omarchy (Hyprland + `omarchy` CLI)
+- Python 3.11+
+- System packages: `python-gobject`, `gtk4`, `libadwaita`
+- No pip runtime dependencies, no network, no extra wallpaper daemon
+
+On Omarchy these GI stacks are already installed.
+
+## Install
+
+From a clone:
 
 ```sh
 python scripts/install.py
-~/.local/bin/backdrop
 ```
 
-Search **Backdrop** in Familiar. The desktop entry uses an absolute launcher path,
-so it also works when Familiar's PATH omits `~/.local/bin`. Re-run the installer
-after changes; the installed copy does not depend on the project staying in place.
-For a preview of the installation files, use `--home /tmp/backdrop-staging`.
+This copies the package to `~/.local/share/backdrop`, writes `~/.local/bin/backdrop`, installs the desktop entry and scalable icon. The desktop `Exec=` uses the absolute launcher path, so Familiar / any app grid finds it even when `~/.local/bin` is not on `PATH`.
+
+Launch:
+
+- Search **Backdrop** in the app launcher
+- or `~/.local/bin/backdrop`
+- or, from the repo: `PYTHONPATH=src python -m backdrop`
+
+Re-run the installer after pulls. Preview a staging install with:
+
+```sh
+python scripts/install.py --home /tmp/backdrop-staging
+```
 
 ## Use
 
-- Choose a collection on the left; narrow windows have a sidebar toggle.
-- Click a card to preview. Arrow keys navigate the focused grid.
-- Double-click or press Enter to apply. Escape closes. Ctrl+F focuses search.
-- Refresh rescans the collection, current theme, and current wallpaper.
-- A current badge identifies the resolved wallpaper file. A saved copy is a distinct
-  file, so its badge appears in Saved rather than on its Pictures original.
+| Action | How |
+| --- | --- |
+| Switch collection | Sidebar (All, Pictures, Agent Generated, Backdrops, Dracula, Theme, Saved) |
+| Search | Header field, or Ctrl+F |
+| Preview | Click a tile |
+| Apply | **Apply wallpaper**, double-click, or Enter |
+| Close | Escape |
+| Refresh | Header refresh — rescans files and the current wallpaper |
 
-All recursively scans `~/Pictures`; Pictures lists only top-level files. Dedicated
-sources cover Agent_Generated, Backdrops, Dracula, the active Theme, and Saved.
-Scans omit Screenshots, Phone, Icons_Logos, GitKraken, Jetbrains, veteran_site,
-hidden folders/files, and directory symlinks. Missing folders have an empty state.
-PNG, JPEG, WebP and AVIF appear when supported by the installed Pixbuf loaders.
-Unreadable images are removed as their thumbnails load; SVG and TIFF are excluded.
+Narrow windows collapse the sidebar behind a toggle.
 
-Thumbnails load when cards map, with three background workers and a 96-image
-memory cache. Thumbnail outputs are bounded to 480 pixels; previews to 1000.
-Some codecs can still require larger internal buffers during decoding. Scanning,
-image decoding, copying, and commands run outside GTK's UI thread. Preview shows
-the whole image; the gallery uses a 16:9 crop. Omarchy controls desktop rendering.
+### Collections
 
-Applying only invokes `omarchy theme bg set <absolute-path>`. Saving uses exclusive,
-collision-safe filenames, and reapplying a file already in Saved reuses it. A copy
-is retained if Omarchy reports failure, so it remains available for retry.
-No packaged Omarchy files, bindings, or other desktop configuration are edited.
+- **All** — recursive `~/Pictures`
+- **Pictures** — top-level files only
+- **Agent Generated**, **Backdrops**, **Dracula** — those folders under Pictures
+- **Theme** — current Omarchy theme backgrounds
+- **Saved** — `~/.config/omarchy/backgrounds/<theme-slug>/`
 
-## Tests
+Skipped by default under Pictures: `Screenshots`, `Phone`, `Icons_Logos`, `GitKraken`, `Jetbrains`, `veteran_site`, hidden names, and directory symlinks (no loops).
 
-A local `.venv` was prepared offline with system GI access and pytest. Activate it:
+Shown when the pixbuf loader supports them: PNG, JPEG, WebP, AVIF. SVG and TIFF are never applied. Unreadable files drop out of the grid as their thumbnail fails.
+
+A **Current** badge marks the resolved `~/.local/state/omarchy/current/background`. A pinned copy is a different file, so the badge follows the copy in Saved, not the Pictures original.
+
+## Keyboard
+
+- **Enter** — apply selection
+- **Esc** — close
+- **Ctrl+F** — focus search
+- **Arrows** — move in the focused grid
+
+## How apply works
+
+1. Optional pin: exclusive temp file under the theme extras directory, then rename-safe copy of bytes.
+2. `omarchy theme bg set <absolute-path>` (list argv, no shell).
+3. Omarchy updates `~/.local/state/omarchy/current/background` and IPC `omarchy-shell background set`.
+
+Backdrop never calls `omarchy-shell background set` itself, never runs `sudo`, and never writes Hyprland config.
+
+Theme slugs are read from `~/.local/state/omarchy/current/theme.name` and rejected unless they look like `[A-Za-z0-9][A-Za-z0-9_-]*`. Accent color is read from the current `colors.toml` when it is a `#RRGGBB` value.
+
+## Performance
+
+Thumbnails decode off the GTK thread (three workers), only when a card maps. Cache keeps 96 images. Thumbnails scale to 480px; preview to 1000px. The gallery crops 16:9; preview shows the whole image.
+
+## Develop
 
 ```sh
+python -m venv .venv --system-site-packages
 . .venv/bin/activate
+pip install pytest
 python -m pytest
 ```
 
-The test suite mocks every wallpaper command and image-loader boundary. It checks
-exact argv, copy-before-apply, collisions, failure cleanup, missing/unsupported
-files, safe scanning, theme validation, and bounded orientation-aware decoding.
-It never applies a live wallpaper. Standard-library core tests also run with
-`python -m unittest discover -s tests`.
+Tests mock every `omarchy` invocation and pixbuf load. They never change the live wallpaper. Core tests also run with `python -m unittest discover -s tests`.
 
-The `.venv` is not part of source control. On another machine, supply pytest in a
-Python environment with system site packages enabled; the application needs only
-stdlib and GI. GUI smoke testing requires access to the desktop display and its
-local image-loader service.
+Layout: `src/backdrop/` (GTK app + Omarchy wrapper), `tests/`, `data/` (desktop file + icon), `scripts/install.py`.
+
+## What this is not
+
+- Not a wallpaper compositor (no swww/hyprpaper of its own)
+- Not a theme generator (use Aether if you want a palette from an image)
+- Not an Omarchy plugin; it is a standalone GTK app
+
+## License
+
+Personal Omarchy tool. No license file yet — ask before redistributing.
