@@ -14,6 +14,8 @@ That is the same path Super+Ctrl+Space uses. Omarchy still owns rendering, trans
 
 The window is GTK 4 / libadwaita: sidebar collections, 16:9 thumbnail grid, large preview, Apply.
 
+![Backdrop](docs/screenshot.png)
+
 ## Why it exists
 
 Omarchy already has a background switcher (`omarchy theme bg-switcher`, bound to **Super+Ctrl+Space**). It only shows:
