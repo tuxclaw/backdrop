@@ -71,8 +71,9 @@ class Window(Adw.ApplicationWindow):
         refresh.connect('clicked', self.refresh)
         header.pack_end(refresh)
         toolbar.add_top_bar(header)
-        self.split = Adw.OverlaySplitView(min_sidebar_width=190, max_sidebar_width=190)
+        layout = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         sidebar = vertical(20)
+        sidebar.set_size_request(220, -1)
         sidebar.add_css_class('sources')
         heading = label('YOUR COLLECTION', 'eyebrow')
         heading.set_margin_start(12)
@@ -90,8 +91,8 @@ class Window(Adw.ApplicationWindow):
         spacer = Gtk.Box(vexpand=True)
         sidebar.append(spacer)
         sidebar.append(label('A fresh point of view.', 'hint'))
-        self.split.set_sidebar(sidebar)
         content = vertical()
+        content.set_hexpand(True)
         intro = vertical(4)
         for side in ('top', 'bottom', 'start', 'end'):
             getattr(intro, f'set_margin_{side}')(24 if side != 'bottom' else 8)
@@ -119,18 +120,11 @@ class Window(Adw.ApplicationWindow):
         self.stack.add_named(self.empty, 'empty')
         content.append(self.stack)
         content.append(self.build_inspector())
-        self.split.set_content(content)
-        toolbar.set_content(self.split)
+        layout.append(sidebar)
+        layout.append(content)
+        toolbar.set_content(layout)
         self.toast.set_child(toolbar)
         self.set_content(self.toast)
-        menu = Gtk.ToggleButton(icon_name='sidebar-show-symbolic', tooltip_text='Show collections', visible=False)
-        menu.bind_property('active', self.split, 'show-sidebar', GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE)
-        header.pack_start(menu)
-        breakpoint = Adw.Breakpoint(condition=Adw.BreakpointCondition.parse('max-width: 900px'))
-        breakpoint.add_setter(self.split, 'collapsed', True)
-        breakpoint.add_setter(self.split, 'show-sidebar', False)
-        breakpoint.add_setter(menu, 'visible', True)
-        self.add_breakpoint(breakpoint)
         keys = Gtk.EventControllerKey()
         keys.connect('key-pressed', self.key_pressed)
         self.add_controller(keys)
@@ -283,8 +277,6 @@ class Window(Adw.ApplicationWindow):
     def source_changed(self, box: Gtk.ListBox, row: Gtk.ListBoxRow | None) -> None:
         if row:
             self.source_name = SOURCES[row.get_index()][0]
-            if self.split.get_collapsed():
-                self.split.set_show_sidebar(False)
             self.refresh()
 
     def refresh(self, *_args: Any) -> None:
